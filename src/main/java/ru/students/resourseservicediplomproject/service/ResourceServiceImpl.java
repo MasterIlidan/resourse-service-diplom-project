@@ -31,7 +31,7 @@ public class ResourceServiceImpl implements ResourceService {
             String extension = getExtension(file);
             String uuid = getUUID();
             String name = uuid + extension;
-
+            //TODO: конфигурируемый путь к директории
             Path path = Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\", name);
 
             try {
@@ -42,7 +42,7 @@ public class ResourceServiceImpl implements ResourceService {
 
             saveResource(uuid, name);
 
-            stringList.add(name);
+            stringList.add(uuid);
             log.info("Registered new resource {}", name);
         }
         return stringList;
