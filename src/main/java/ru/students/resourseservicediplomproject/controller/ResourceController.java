@@ -7,25 +7,24 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import ru.students.resourseservicediplomproject.service.ResourceService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Controller
 public class ResourceController {
 
+    private final ResourceService resourceService;
+
+    public ResourceController(ResourceService resourceService) {
+        this.resourceService = resourceService;
+    }
+
     @PostMapping("/registerNewResource")
     public ResponseEntity<List<String>> registerNewResource(@RequestParam("image") MultipartFile[] images) {
-        List<String> stringList = new ArrayList<>(images.length);
-        for (MultipartFile file:images) {
-            String name = String.valueOf(UUID.randomUUID());
-            stringList.add(name);
-            log.info("Registered new resource {}", name);
-        }
-
-        return new ResponseEntity<>(stringList, HttpStatus.CREATED);
+        List<String> uuidList = resourceService.processFiles(images);
+        return new ResponseEntity<>(uuidList, HttpStatus.CREATED);
     }
 
 }
