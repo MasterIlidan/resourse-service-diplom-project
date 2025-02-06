@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +30,6 @@ public class ResourceController {
     }
     @GetMapping("/getResource{uuid}")
     public ResponseEntity<String> getResource(@PathVariable String uuid) {
-
-        return new ResponseEntity<>(uuid, HttpStatus.OK);
+        return new ResponseEntity<>(resourceService.base64Image(uuid), HttpStatus.OK);
     }
 }

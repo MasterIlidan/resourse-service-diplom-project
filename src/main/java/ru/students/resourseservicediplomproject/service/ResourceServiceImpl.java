@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -47,10 +45,31 @@ public class ResourceServiceImpl implements ResourceService {
         }
         return stringList;
     }
+
     @Override
     public void saveResource(String uuid, String name) {
         Resource resource = new Resource(uuid, name);
         resourceRepository.save(resource);
+    }
+
+    @Override
+    public String base64Image(String uuid) {
+        Optional<Resource> resource = resourceRepository.findById(uuid);
+        if (resource.isEmpty()) {
+            return null;
+        }
+
+        try {
+            //TODO: конфигурируемый путь к директории
+            byte[] bytes = Files.readAllBytes(
+                    Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\" + resource.get().getFileName()));
+            Base64.Encoder base64 = Base64.getEncoder();
+            return base64.encodeToString(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     private String getUUID() {
@@ -72,15 +91,12 @@ public class ResourceServiceImpl implements ResourceService {
         int indexOfPoint = stringBuilder.lastIndexOf(".");
         extension = stringBuilder.delete(0, indexOfPoint).toString();
 
-        if (validateExtension(extension)){
+        if (validateExtension(extension)) {
             return extension;
         } else {
             log.warn("Расширение файла не соответствует поддерживаемым");
             return ".jpg";
         }
-        /*String fileName = file.getOriginalFilename();
-        String[] splitName = fileName.split("\\.");
-        extension = splitName[splitName.length-1];*/
     }
 
     private boolean validateExtension(String extension) {
