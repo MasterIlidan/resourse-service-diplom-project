@@ -30,7 +30,8 @@ public class ResourceServiceImpl implements ResourceService {
             String uuid = getUUID();
             String name = uuid + extension;
             //TODO: конфигурируемый путь к директории
-            Path path = Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\", name);
+            Path path =
+                    Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\", name);
 
             try {
                 Files.write(path, file.getBytes());
@@ -62,7 +63,8 @@ public class ResourceServiceImpl implements ResourceService {
         try {
             //TODO: конфигурируемый путь к директории
             byte[] bytes = Files.readAllBytes(
-                    Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\" + resource.get().getFileName()));
+                    Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\"
+                            + resource.get().getFileName()));
             Base64.Encoder base64 = Base64.getEncoder();
             return base64.encodeToString(bytes);
         } catch (IOException e) {
@@ -70,6 +72,29 @@ public class ResourceServiceImpl implements ResourceService {
         }
 
 
+    }
+
+    @Override
+    public boolean deleteResource(String uuid) {
+        Optional<Resource> resource = resourceRepository.findById(uuid);
+        if (resource.isEmpty()) {
+            log.warn("Ресурс {} не найден", uuid);
+            return false;
+        }
+        boolean deleted = false;
+        for (int i = 1; i <= 3 & !deleted; i++) {
+            try {
+                deleted = Files.deleteIfExists(
+                        Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\"
+                                + resource.get().getFileName()));
+            } catch (IOException e) {
+                log.error("Ошибка при удалении ресурса {}. Попытка {}", uuid, i, e);
+            }
+        }
+        if (!deleted) {
+            log.error("Файл ресурса {} так и не был удален. Запись из базы данных удалена. Может файл был перемещен?", uuid);
+        }
+        return true;
     }
 
     private String getUUID() {

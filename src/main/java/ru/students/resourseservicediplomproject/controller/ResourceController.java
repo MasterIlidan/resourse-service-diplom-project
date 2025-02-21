@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.students.resourseservicediplomproject.service.ResourceService;
 
@@ -23,13 +20,24 @@ public class ResourceController {
         this.resourceService = resourceService;
     }
 
-    @PostMapping("/registerNewResource")
+    @PostMapping("/resource")
     public ResponseEntity<List<String>> registerNewResource(@RequestParam("image") MultipartFile[] images) {
+        log.info("Запрос на добавление {} ресурсов", images.length);
         List<String> uuidList = resourceService.processFiles(images);
         return new ResponseEntity<>(uuidList, HttpStatus.CREATED);
     }
-    @GetMapping("/getResource{uuid}")
+    @GetMapping("/resource{uuid}")
     public ResponseEntity<String> getResource(@PathVariable String uuid) {
+        log.info("Запрос ресурса {}", uuid);
         return new ResponseEntity<>(resourceService.base64Image(uuid), HttpStatus.OK);
+    }
+    @DeleteMapping("/resource{uuid}")
+    public ResponseEntity<String> deleteResource(@PathVariable String uuid){
+        log.info("Запрос на удаление ресурса {}", uuid);
+        boolean result = resourceService.deleteResource(uuid);
+        if (!result) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

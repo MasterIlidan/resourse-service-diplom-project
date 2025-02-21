@@ -10,4 +10,6 @@ public interface ResourceService {
     void saveResource(String uuid, String name);
 
     String base64Image(String uuid);
+
+    boolean deleteResource(String uuid);
 }
