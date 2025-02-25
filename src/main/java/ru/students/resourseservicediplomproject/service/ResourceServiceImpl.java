@@ -22,29 +22,26 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public List<String> processFiles(MultipartFile[] images) {
-        List<String> stringList = new ArrayList<>(images.length);
-        for (MultipartFile file : images) {
+    public String processFiles(MultipartFile image) {
 
-            String extension = getExtension(file);
-            String uuid = getUUID();
-            String name = uuid + extension;
-            //TODO: конфигурируемый путь к директории
-            Path path =
-                    Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\", name);
+        String extension = getExtension(image);
+        String uuid = getUUID();
+        String name = uuid + extension;
+        //TODO: конфигурируемый путь к директории
+        Path path =
+                Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\", name);
 
-            try {
-                Files.write(path, file.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            saveResource(uuid, name);
-
-            stringList.add(uuid);
-            log.info("Registered new resource {}", name);
+        try {
+            Files.write(path, image.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return stringList;
+
+        saveResource(uuid, name);
+
+        log.info("Registered new resource {}", name);
+
+        return uuid;
     }
 
     @Override
@@ -64,7 +61,7 @@ public class ResourceServiceImpl implements ResourceService {
             //TODO: конфигурируемый путь к директории
             byte[] bytes = Files.readAllBytes(
                     Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\"
-                            + resource.get().getFileName()));
+                              + resource.get().getFileName()));
             Base64.Encoder base64 = Base64.getEncoder();
             return base64.encodeToString(bytes);
         } catch (IOException e) {
@@ -86,7 +83,7 @@ public class ResourceServiceImpl implements ResourceService {
             try {
                 deleted = Files.deleteIfExists(
                         Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\"
-                                + resource.get().getFileName()));
+                                  + resource.get().getFileName()));
             } catch (IOException e) {
                 log.error("Ошибка при удалении ресурса {}. Попытка {}", uuid, i, e);
             }
@@ -113,20 +110,20 @@ public class ResourceServiceImpl implements ResourceService {
         }
         String extension;
         StringBuilder stringBuilder = new StringBuilder(file.getOriginalFilename());
-        int indexOfPoint = stringBuilder.lastIndexOf(".");
+        int indexOfPoint = stringBuilder.lastIndexOf("." );
         extension = stringBuilder.delete(0, indexOfPoint).toString();
 
         if (validateExtension(extension)) {
             return extension;
         } else {
-            log.warn("Расширение файла не соответствует поддерживаемым");
+            log.warn("Расширение файла не соответствует поддерживаемым" );
             return ".jpg";
         }
     }
 
     private boolean validateExtension(String extension) {
-        return extension.equals(".jpg")
-                || extension.equals(".jpeg")
-                || extension.equals(".png");
+        return extension.equals(".jpg" )
+               || extension.equals(".jpeg" )
+               || extension.equals(".png" );
     }
 }

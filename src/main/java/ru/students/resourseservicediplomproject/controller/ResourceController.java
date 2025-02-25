@@ -21,9 +21,9 @@ public class ResourceController {
     }
 
     @PostMapping("/resource")
-    public ResponseEntity<List<String>> registerNewResource(@RequestParam("image") MultipartFile[] images) {
-        log.info("Запрос на добавление {} ресурсов", images.length);
-        List<String> uuidList = resourceService.processFiles(images);
+    public ResponseEntity<String> registerNewResource(@RequestParam("image") MultipartFile images) {
+        log.info("Запрос на добавление ресурсов");
+        String uuidList = resourceService.processFiles(images);
         return new ResponseEntity<>(uuidList, HttpStatus.CREATED);
     }
     @GetMapping("/resource{uuid}")
