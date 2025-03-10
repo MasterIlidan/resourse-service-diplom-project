@@ -1,5 +1,6 @@
 package ru.students.resourseservicediplomproject.service;
 
+import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,7 +11,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Base64;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -27,9 +30,8 @@ public class ResourceServiceImpl implements ResourceService {
         String extension = getExtension(image);
         String uuid = getUUID();
         String name = uuid + extension;
-        //TODO: конфигурируемый путь к директории
         Path path =
-                Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\", name);
+                Paths.get("./images/", name);
 
         try {
             Files.write(path, image.getBytes());
@@ -51,6 +53,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
+    @Nullable
     public String base64Image(String uuid) {
         Optional<Resource> resource = resourceRepository.findById(uuid);
         if (resource.isEmpty()) {
@@ -58,14 +61,13 @@ public class ResourceServiceImpl implements ResourceService {
         }
 
         try {
-            //TODO: конфигурируемый путь к директории
             byte[] bytes = Files.readAllBytes(
-                    Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\"
+                    Paths.get("./images/"
                               + resource.get().getFileName()));
             Base64.Encoder base64 = Base64.getEncoder();
             return base64.encodeToString(bytes);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
 
 
@@ -82,7 +84,7 @@ public class ResourceServiceImpl implements ResourceService {
         for (int i = 1; i <= 3 & !deleted; i++) {
             try {
                 deleted = Files.deleteIfExists(
-                        Paths.get("C:\\Users\\MasterIlidan\\IdeaProjects\\resourse-service-diplom-project\\images\\"
+                        Paths.get("./images/"
                                   + resource.get().getFileName()));
             } catch (IOException e) {
                 log.error("Ошибка при удалении ресурса {}. Попытка {}", uuid, i, e);
