@@ -103,7 +103,12 @@ class ResourceControllerTest {
     }
 
     @Test
-    void getResource_returnWithStatusNotFound() {
+    void getResource_returnWithStatusNotFound() throws Exception {
+        mockMvc.perform(
+                        get("/resource" + UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isNotFound());
     }
 
 
