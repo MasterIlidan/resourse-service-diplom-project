@@ -2,8 +2,8 @@ package ru.students.resourseservicediplomproject.service;
 
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ru.students.resourseservicediplomproject.entity.Resource;
 import ru.students.resourseservicediplomproject.repository.ResourceRepository;
 
@@ -25,16 +25,16 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public String processFiles(MultipartFile image) {
+    public String processFiles(org.springframework.core.io.Resource fileResource, String fileName) {
 
-        String extension = getExtension(image);
+        String extension = getExtension(fileName);
         String uuid = getUUID();
         String name = uuid + extension;
         Path path =
                 Paths.get("./images/", name);
 
         try {
-            Files.write(path, image.getBytes());
+            Files.write(path, fileResource.getContentAsByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -106,12 +106,12 @@ public class ResourceServiceImpl implements ResourceService {
         return uuid;
     }
 
-    private String getExtension(MultipartFile file) {
-        if (file.getOriginalFilename() == null) {
+    private String getExtension(String fileName) {
+        if (fileName == null) {
             return ".jpg";
         }
         String extension;
-        StringBuilder stringBuilder = new StringBuilder(file.getOriginalFilename());
+        StringBuilder stringBuilder = new StringBuilder(fileName);
         int indexOfPoint = stringBuilder.lastIndexOf("." );
         extension = stringBuilder.delete(0, indexOfPoint).toString();
 

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.students.resourseservicediplomproject.service.ResourceService;
 
+import java.io.IOException;
+
 @Slf4j
 @Controller
 public class ResourceController {
@@ -19,9 +21,10 @@ public class ResourceController {
     }
 
     @PostMapping("/resource")
-    public ResponseEntity<String> registerNewResource(@RequestParam("image") MultipartFile images) {
+    public ResponseEntity<String> registerNewResource(@RequestParam("image") MultipartFile images) throws IOException {
         log.info("Запрос на добавление ресурсов");
-        String uuidList = resourceService.processFiles(images);
+        //String uuidList = resourceService.processFiles(images);
+        String uuidList = resourceService.processFiles(images.getResource(), images.getOriginalFilename());
         return new ResponseEntity<>(uuidList, HttpStatus.CREATED);
     }
     @GetMapping("/resource{uuid}")

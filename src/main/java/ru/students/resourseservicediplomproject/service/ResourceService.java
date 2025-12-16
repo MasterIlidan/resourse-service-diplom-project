@@ -1,10 +1,10 @@
 package ru.students.resourseservicediplomproject.service;
 
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
 
 public interface ResourceService {
 
-    String processFiles(MultipartFile image);
+    String processFiles(Resource fileResource, String fileName);
 
     void saveResource(String uuid, String name);
 
