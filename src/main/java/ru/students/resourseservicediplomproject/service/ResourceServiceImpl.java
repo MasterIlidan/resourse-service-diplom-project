@@ -2,8 +2,8 @@ package ru.students.resourseservicediplomproject.service;
 
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.students.resourseservicediplomproject.config.ImagePathExtractor;
 import ru.students.resourseservicediplomproject.entity.Resource;
 import ru.students.resourseservicediplomproject.repository.ResourceRepository;
 
@@ -19,9 +19,19 @@ import java.util.UUID;
 @Slf4j
 public class ResourceServiceImpl implements ResourceService {
     private final ResourceRepository resourceRepository;
+    private final ImagePathExtractor imagePathExtractor;
 
-    public ResourceServiceImpl(ResourceRepository resourceRepository) {
+    public ResourceServiceImpl(ResourceRepository resourceRepository, ImagePathExtractor imagePathExtractor) {
         this.resourceRepository = resourceRepository;
+        this.imagePathExtractor = imagePathExtractor;
+
+        if (Files.notExists(Path.of(imagePathExtractor.getImagePath()))) {
+            try {
+                Files.createDirectory(Path.of(imagePathExtractor.getImagePath()));
+            } catch (IOException e) {
+                throw new RuntimeException("Directory creation error",e);
+            }
+        }
     }
 
     @Override
@@ -31,7 +41,7 @@ public class ResourceServiceImpl implements ResourceService {
         String uuid = getUUID();
         String name = uuid + extension;
         Path path =
-                Paths.get("./images/", name);
+                Paths.get(imagePathExtractor.getImagePath(), name);
 
         try {
             Files.write(path, fileResource.getContentAsByteArray());
@@ -62,8 +72,8 @@ public class ResourceServiceImpl implements ResourceService {
 
         try {
             byte[] bytes = Files.readAllBytes(
-                    Paths.get("./images/"
-                              + resource.get().getFileName()));
+                    Paths.get(imagePathExtractor.getImagePath()
+                            + resource.get().getFileName()));
             Base64.Encoder base64 = Base64.getEncoder();
             return base64.encodeToString(bytes);
         } catch (IOException e) {
@@ -84,8 +94,8 @@ public class ResourceServiceImpl implements ResourceService {
         for (int i = 1; i <= 3 & !deleted; i++) {
             try {
                 deleted = Files.deleteIfExists(
-                        Paths.get("./images/"
-                                  + resource.get().getFileName()));
+                        Paths.get(imagePathExtractor.getImagePath()
+                                + resource.get().getFileName()));
             } catch (IOException e) {
                 log.error("Ошибка при удалении ресурса {}. Попытка {}", uuid, i, e);
             }
@@ -112,20 +122,20 @@ public class ResourceServiceImpl implements ResourceService {
         }
         String extension;
         StringBuilder stringBuilder = new StringBuilder(fileName);
-        int indexOfPoint = stringBuilder.lastIndexOf("." );
+        int indexOfPoint = stringBuilder.lastIndexOf(".");
         extension = stringBuilder.delete(0, indexOfPoint).toString();
 
         if (validateExtension(extension)) {
             return extension;
         } else {
-            log.warn("Расширение файла не соответствует поддерживаемым" );
+            log.warn("Расширение файла не соответствует поддерживаемым");
             return ".jpg";
         }
     }
 
     private boolean validateExtension(String extension) {
-        return extension.equals(".jpg" )
-               || extension.equals(".jpeg" )
-               || extension.equals(".png" );
+        return extension.equals(".jpg")
+                || extension.equals(".jpeg")
+                || extension.equals(".png");
     }
 }
