@@ -39,7 +39,7 @@ class ResourceServiceTest {
     ResourceServiceImpl resourceService;
 
     @Test
-    void processFiles() throws IOException {
+    void saveResource() throws IOException {
         //given
         Resource testResource = new ClassPathResource("testImage.png");
         String testPath = "./testImages/";
@@ -57,17 +57,12 @@ class ResourceServiceTest {
                                 Mockito.anyString()));
 
         //when
-        String resourceUUID = resourceService.processFiles(testResource, testResource.getFilename());
+        String resourceUUID = resourceService.saveResource(testResource, testResource.getFilename());
         //verify
         Mockito.verify(resourceRepository, Mockito.atLeastOnce()).save(Mockito.any(ru.students.resourseservicediplomproject.entity.Resource.class));
         assertDoesNotThrow(() -> UUID.fromString(resourceUUID));
         assertArrayEquals(testResource.getContentAsByteArray(), new FileSystemResource("%s%s.png".formatted(testPath, resourceUUID)).getContentAsByteArray());
         //assertEquals(testResource.getContentAsByteArray(), new FileSystemResource("%s%s.png".formatted(testPath,resourceUUID)).getContentAsByteArray());
-    }
-
-    @Test
-    void saveResource() {
-
     }
 
     @Test
@@ -93,6 +88,24 @@ class ResourceServiceTest {
         assertArrayEquals(Files.readAllBytes(testFile), testResource.getContentAsByteArray());
         assertNotNull(base64Image);
         assertDoesNotThrow(() -> Base64.decode(base64Image));
+    }
+
+    @Test
+    void base64Image_getNotExistingBase64ImageByUUID_returnsNull() {
+        //given
+        String testPath = "./testImages/";
+        String testUUID = UUID.randomUUID().toString();
+        Mockito.when(imagePathExtractor.getImagePath()).thenReturn(testPath);
+
+        Mockito.when(resourceRepository.findById(testUUID))
+                .thenReturn(
+                        Optional.of(new ru.students.resourseservicediplomproject.entity.Resource(
+                                testUUID,
+                                testUUID + ".png")));
+        //when
+        String base64Image = resourceService.base64Image(testUUID);
+        //verify
+        assertNull(base64Image);
     }
 
     @Test
