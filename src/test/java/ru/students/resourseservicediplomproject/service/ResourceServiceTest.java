@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.base64.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -18,11 +19,11 @@ import ru.students.resourseservicediplomproject.repository.ResourceRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceServiceTest {
@@ -66,15 +67,38 @@ class ResourceServiceTest {
 
     @Test
     void saveResource() {
+
     }
 
     @Test
-    void base64Image() {
+    void base64Image_getExistingBase64ImageByUUID_returnsBase64Image() throws IOException {
+        //given
+        Resource testResource = new ClassPathResource("testImage.png");
+        String testPath = "./testImages/";
+        String testUUID = UUID.randomUUID().toString();
+        Mockito.when(imagePathExtractor.getImagePath()).thenReturn(testPath);
+
+        Path testFile = Files.createFile(Path.of(testPath + testUUID + ".png"));
+        Files.write(testFile, testResource.getContentAsByteArray());
+
+        //Mockito.when(resourceRepository.existsById(Mockito.anyString())).thenReturn(false);
+        Mockito.when(resourceRepository.findById(testUUID))
+                .thenReturn(
+                        Optional.of(new ru.students.resourseservicediplomproject.entity.Resource(
+                                testUUID,
+                                testUUID + ".png")));
+        //when
+        String base64Image = resourceService.base64Image(testUUID);
+        //verify
+        assertArrayEquals(Files.readAllBytes(testFile), testResource.getContentAsByteArray());
+        assertNotNull(base64Image);
+        assertDoesNotThrow(() -> Base64.decode(base64Image));
     }
 
     @Test
     void deleteResource() {
     }
+
     @AfterAll
     static void tearDown() {
         try (Stream<Path> images = Files.list(Path.of("./testImages/"))){
