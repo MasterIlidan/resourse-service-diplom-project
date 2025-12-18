@@ -1,11 +1,14 @@
 package ru.students.resourseservicediplomproject.service;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -13,7 +16,10 @@ import ru.students.resourseservicediplomproject.config.ImagePathExtractor;
 import ru.students.resourseservicediplomproject.repository.ResourceRepository;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -21,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @ExtendWith(MockitoExtension.class)
 class ResourceServiceTest {
 
+    private static final Logger log = LoggerFactory.getLogger(ResourceServiceTest.class);
     @Mock
     ResourceRepository resourceRepository;
 
@@ -67,5 +74,17 @@ class ResourceServiceTest {
 
     @Test
     void deleteResource() {
+    }
+    @AfterAll
+    static void tearDown() {
+        try (Stream<Path> images = Files.list(Path.of("./testImages/"))){
+            images.forEach(path -> {
+                if (!path.toFile().delete()) {
+                    log.warn("Could not delete file {}", path);
+                }
+            });
+        } catch (IOException e) {
+            log.error("Error while deleting testImage", e);
+        }
     }
 }
