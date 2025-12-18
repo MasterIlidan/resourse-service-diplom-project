@@ -34,7 +34,7 @@ class ResourceControllerTest {
 
     @Test
     void registerNewResource_returnWithStatusCreated() throws Exception {
-        Resource fileResource = new ClassPathResource("./testImage.png");
+        Resource fileResource = new ClassPathResource("testImage.png");
         MockMultipartFile firstFile = new MockMultipartFile(
                 "image", fileResource.getFilename(),
                 MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -61,7 +61,7 @@ class ResourceControllerTest {
 
     @Test
     void getResource_returnWithStatusOk() throws Exception {
-        Resource fileResource = new ClassPathResource("./testImage.png");
+        Resource fileResource = new ClassPathResource("testImage.png");
         MockMultipartFile firstFile = new MockMultipartFile(
                 "image", fileResource.getFilename(),
                 MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -107,7 +107,7 @@ class ResourceControllerTest {
 
     @Test
     void deleteResource_returnWithStatusOk() throws Exception {
-        Resource fileResource = new ClassPathResource("./testImage.png");
+        Resource fileResource = new ClassPathResource("testImage.png");
         MockMultipartFile firstFile = new MockMultipartFile(
                 "image", fileResource.getFilename(),
                 MediaType.MULTIPART_FORM_DATA_VALUE,
