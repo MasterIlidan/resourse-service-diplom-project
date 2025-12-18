@@ -1,12 +1,10 @@
 package ru.students.resourseservicediplomproject.service;
 
-import org.springframework.core.io.Resource;
-
 public interface ResourceService {
 
-    String processFiles(Resource fileResource, String fileName);
+    //String processFiles(Resource fileResource, String fileName);
 
-    void saveResource(String uuid, String name);
+    String saveResource(org.springframework.core.io.Resource fileResource, String fileName);
 
     String base64Image(String uuid);
 

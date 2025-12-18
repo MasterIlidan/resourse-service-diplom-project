@@ -24,7 +24,7 @@ public class ResourceController {
     public ResponseEntity<String> registerNewResource(@RequestParam("image") MultipartFile images) throws IOException {
         log.info("Запрос на добавление ресурсов");
         //String uuidList = resourceService.processFiles(images);
-        String uuidList = resourceService.processFiles(images.getResource(), images.getOriginalFilename());
+        String uuidList = resourceService.saveResource(images.getResource(), images.getOriginalFilename());
         return new ResponseEntity<>(uuidList, HttpStatus.CREATED);
     }
     @GetMapping("/resource{uuid}")

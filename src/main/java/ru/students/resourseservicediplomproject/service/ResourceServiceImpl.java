@@ -24,18 +24,9 @@ public class ResourceServiceImpl implements ResourceService {
     public ResourceServiceImpl(ResourceRepository resourceRepository, ImagePathExtractor imagePathExtractor) {
         this.resourceRepository = resourceRepository;
         this.imagePathExtractor = imagePathExtractor;
-
-        if (Files.notExists(Path.of(imagePathExtractor.getImagePath()))) {
-            try {
-                Files.createDirectory(Path.of(imagePathExtractor.getImagePath()));
-            } catch (IOException e) {
-                throw new RuntimeException("Directory creation error",e);
-            }
-        }
     }
 
-    @Override
-    public String processFiles(org.springframework.core.io.Resource fileResource, String fileName) {
+    private Resource processFiles(org.springframework.core.io.Resource fileResource, String fileName) {
 
         String extension = getExtension(fileName);
         String uuid = getUUID();
@@ -44,22 +35,26 @@ public class ResourceServiceImpl implements ResourceService {
                 Paths.get(imagePathExtractor.getImagePath(), name);
 
         try {
+            if (Files.notExists(Path.of(imagePathExtractor.getImagePath()))) {
+                Files.createDirectory(Path.of(imagePathExtractor.getImagePath()));
+            }
             Files.write(path, fileResource.getContentAsByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        saveResource(uuid, name);
+        //saveResource(uuid, name);
 
-        log.info("Registered new resource {}", name);
 
-        return uuid;
+        return new Resource(uuid, path.getFileName().toString());
     }
 
     @Override
-    public void saveResource(String uuid, String name) {
-        Resource resource = new Resource(uuid, name);
+    public String saveResource(org.springframework.core.io.Resource fileResource, String fileName) {
+        Resource resource = processFiles(fileResource, fileName);
         resourceRepository.save(resource);
+        log.info("Registered new resource {}", resource.getUuid());
+        return resource.getUuid();
     }
 
     @Override
