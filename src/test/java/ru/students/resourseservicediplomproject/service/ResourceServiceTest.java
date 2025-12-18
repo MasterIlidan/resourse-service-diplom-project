@@ -13,10 +13,10 @@ import ru.students.resourseservicediplomproject.config.ImagePathExtractor;
 import ru.students.resourseservicediplomproject.repository.ResourceRepository;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceServiceTest {
@@ -49,16 +49,12 @@ class ResourceServiceTest {
                                 Mockito.anyString()));
 
         //when
-        String string;
-        try {
-            string = resourceService.processFiles(testResource, testResource.getFilename());
-        } finally {
-            Files.delete(testResource.getFile().toPath());
-        }
+        String resourceUUID = resourceService.processFiles(testResource, testResource.getFilename());
         //verify
         Mockito.verify(resourceRepository, Mockito.atLeastOnce()).save(Mockito.any(ru.students.resourseservicediplomproject.entity.Resource.class));
-        assertDoesNotThrow(() -> UUID.fromString(string));
-        assertEquals(testResource.getContentAsByteArray(), new FileSystemResource("%s%s.png".formatted(testPath,string)).getContentAsByteArray());
+        assertDoesNotThrow(() -> UUID.fromString(resourceUUID));
+        assertArrayEquals(testResource.getContentAsByteArray(), new FileSystemResource("%s%s.png".formatted(testPath, resourceUUID)).getContentAsByteArray());
+        //assertEquals(testResource.getContentAsByteArray(), new FileSystemResource("%s%s.png".formatted(testPath,resourceUUID)).getContentAsByteArray());
     }
 
     @Test
